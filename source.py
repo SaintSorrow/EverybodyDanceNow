@@ -114,6 +114,21 @@ test_image_dir.mkdir(exist_ok=True)
 
 test_face_label_dir = test_dir.joinpath('test_face_label')
 test_face_label_dir.mkdir(exist_ok=True)
+
+# ----------------------
+if len(os.listdir(img_dir)) < 400:
+	cap = cv2.VideoCapture(str(save_dir.joinpath('video.mp4')))
+	i = 0
+	while (cap.isOpened()):
+		flag, frame = cap.read()
+		if flag == False :
+			break
+		cv2.imwrite(str(img_dir.joinpath('{:012}.png'.format(i))), frame)
+		if i%100 == 0:
+			print('Has generated %d picetures'%i)
+		i += 1
+# ---------------------
+
 all_index = []
 scale = []
 
