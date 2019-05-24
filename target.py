@@ -38,8 +38,8 @@ def gao(idx):
 	img = cv2.imread(str(img_path))[:, 420: -420]
 	img = cv2.resize(img, (512, 512))
 
-	# cv2.imwrite(str(train_img_dir.joinpath(idx + '.png')), img)
-	# label = create_label_full((512, 512), anno)
+	cv2.imwrite(str(train_img_dir.joinpath(idx + '.png')), img)
+	label = create_label_full((512, 512), anno)
 
 	# s = label.max(axis = 2)[:,:, np.newaxis]
 	# fig = plt.figure(1)
@@ -49,9 +49,9 @@ def gao(idx):
 	# plt.show()
 
 
-	# label = torch.tensor(label).byte()
-	# label_path = train_label_dir.joinpath('%s.torch'% idx)
-	# torch.save(label, str(label_path))
+	label = torch.tensor(label).byte()
+	label_path = train_label_dir.joinpath('%s.torch'% idx)
+	torch.save(label, str(label_path))
 	# ===================== Crop Face ==============================
 	
 	face = anno['face_keypoints_2d']
@@ -139,30 +139,30 @@ for anno_name in sorted(os.listdir(anno_dir)):
 		continue
 	scale.append([y, s, int(all_index[-1])])
 
-# def xcmp(x, y):
-# 	return x[0] - y[0]
-# scale = sorted(scale, key = cmp_to_key(xcmp))
-# scale = np.array(scale)
-# median = np.median(scale[:, 0])
-# xlen = int(scale.shape[0] * 0.05)
-# d = (scale[-1, 0] - scale[0,0]) * 0.1
-# print(scale.shape, d)
+def xcmp(x, y):
+	return x[0] - y[0]
+scale = sorted(scale, key = cmp_to_key(xcmp))
+scale = np.array(scale)
+median = np.median(scale[:, 0])
+xlen = int(scale.shape[0] * 0.05)
+d = (scale[-1, 0] - scale[0,0]) * 0.1
+print(scale.shape, d)
 
 
-# idx = np.searchsorted(scale[:, 0], scale[-1, 0] - d)
-# smax = scale[-idx:, 1].max()
-# midx = scale[-idx:, 1].argmax()
-# print (scale[-idx:, -1][midx])
+idx = np.searchsorted(scale[:, 0], scale[-1, 0] - d)
+smax = scale[-idx:, 1].max()
+midx = scale[-idx:, 1].argmax()
+print (scale[-idx:, -1][midx])
 
-# idx = np.searchsorted(scale[:, 0], scale[0, 0] + d, side = 'right')
-# smin = scale[:idx, 1].max()
-# midx = scale[:idx, 1].argmax()
-# print (scale[:idx, -1][midx])
+idx = np.searchsorted(scale[:, 0], scale[0, 0] + d, side = 'right')
+smin = scale[:idx, 1].max()
+midx = scale[:idx, 1].argmax()
+print (scale[:idx, -1][midx])
 
-# print(scale[0, 0], scale[-1, 0 ])
-# print(smin, smax)
-# f = open(train_dir.joinpath('scale.txt'),'w')
-# f.write( ' '.join([str(scale[0, 0]), str(scale[-1, 0]), str(smin), str(smax)]) )
+print(scale[0, 0], scale[-1, 0 ])
+print(smin, smax)
+f = open(train_dir.joinpath('scale.txt'),'w')
+f.write( ' '.join([str(scale[0, 0]), str(scale[-1, 0]), str(smin), str(smax)]) )
 
 from multiprocessing import Pool
 pool = Pool(10)
