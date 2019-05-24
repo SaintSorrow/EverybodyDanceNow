@@ -26,9 +26,10 @@ def gao(idx):
 
 	anno = anno[0]
 	for key in anno:
-		anno[key] = np.array(anno[key]).reshape(-1, 3).astype(np.float)
-		anno[key][:,  0] -= 420
-		anno[key][:, :2]  = (anno[key][:, :2] / 1080. * 512).clip(min=0)
+		if (key != 'person_id'):
+			anno[key] = np.array(anno[key]).reshape(-1, 3).astype(np.float)
+			anno[key][:,  0] -= 420
+			anno[key][:, :2]  = (anno[key][:, :2] / 1080. * 512).clip(min=0)
 	x = anno['pose_keypoints_2d'][:,:2]
 
 	s = np.linalg.norm(x[1,:] - x[8,:])
@@ -40,20 +41,22 @@ def gao(idx):
 		
 		left = w * (1 - l) *  x[:,1].min() / (512 - w)
 		for key in anno:
-			anno[key] *= l
+			if (key != 'person_id'):
+				anno[key] *= l
 
 		d = max(x[21,1], x[24,1]) - b
 		# print(l, d)
 		for key in anno:
-			anno[key][:, 0] += left
-			anno[key][:, 1] -= d
+			if (key != 'person_id'):
+				anno[key][:, 0] += left
+				anno[key][:, 1] -= d
 		# print(max(x[21,1], x[24,1]) - b)
 
-	# img_path = img_dir.joinpath('%s.png'%idx)
-	# img = cv2.imread(str(img_path))[:, 420: -420]
-	# img = cv2.resize(img, (512, 512))
-	# cv2.imwrite(str(test_image_dir.joinpath('%s.png'%idx)), img)
-	# label = create_label_full((512, 512), anno)
+	img_path = img_dir.joinpath('%s.png'%idx)
+	img = cv2.imread(str(img_path))[:, 420: -420]
+	img = cv2.resize(img, (512, 512))
+	cv2.imwrite(str(test_image_dir.joinpath('%s.png'%idx)), img)
+	label = create_label_full((512, 512), anno)
 
 	# s = label.max(axis = 2)[:,:, np.newaxis]
 	# fig = plt.figure(1)
@@ -62,10 +65,10 @@ def gao(idx):
 	# ax.imshow((s[:,:, 0] * 255).astype(np.uint8))
 	# plt.show()
 
-	# label = torch.tensor(label).byte()
-	# label_path = test_label_dir.joinpath('%s.torch'% idx)
-	# torch.save(label, str(label_path))
-	# print(str(test_image_dir.joinpath('%s.png'%idx)))
+	label = torch.tensor(label).byte()
+	label_path = test_label_dir.joinpath('%s.torch'% idx)
+	torch.save(label, str(label_path))
+	print(str(test_image_dir.joinpath('%s.png'%idx)))
 
 	# ================ Crop Face=====================
 	face = anno['face_keypoints_2d']
